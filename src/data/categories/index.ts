@@ -1,0 +1,2 @@
+// categories module placeholder
+export {}

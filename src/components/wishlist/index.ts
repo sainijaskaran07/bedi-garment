@@ -1,0 +1,2 @@
+// wishlist module placeholder
+export {}

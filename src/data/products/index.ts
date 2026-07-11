@@ -1,0 +1,2 @@
+// products module placeholder
+export {}
