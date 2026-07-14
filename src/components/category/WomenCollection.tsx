@@ -4,6 +4,7 @@ import type { Variants } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { ProductCard } from '../cards'
+import { MOCK_PRODUCTS } from '../../data'
 
 // Import generated editorial assets
 import ethnicBanner from '@/assets/banners/women_ethnic_banner.jpg'
@@ -22,49 +23,49 @@ const WOMEN_CATEGORIES: Category[] = [
     name: 'New Arrivals',
     description: 'Dresses, Tops & Everyday Fashion',
     imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=new'
+    link: '/product/royal-silk-anarkali-suit-set'
   },
   {
     name: 'Western Wear',
     description: 'Modern Streetwear',
     imageUrl: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=western'
+    link: '/product/handblock-print-kurti'
   },
   {
     name: 'Ethnic Wear',
     description: 'Elegant Indian Wear',
     imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=ethnic'
+    link: '/product/heritage-banarasi-silk-saree'
   },
   {
     name: 'Party Wear',
     description: 'Premium Party Collection',
     imageUrl: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=party'
+    link: '/product/elegant-silk-party-gown'
   },
   {
     name: 'Dresses',
     description: 'Dresses, Tops & Everyday Fashion',
     imageUrl: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=dresses'
+    link: '/product/royal-silk-anarkali-suit-set'
   },
   {
     name: 'Co-ord Sets',
     description: 'Modern Streetwear',
     imageUrl: 'https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=coord'
+    link: '/product/royal-silk-anarkali-suit-set'
   },
   {
     name: 'Office Wear',
     description: 'Office Essentials',
     imageUrl: 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=office'
+    link: '/product/traditional-punjabi-salwar-kameez'
   },
   {
     name: 'Winter Collection',
     description: 'Premium Party Collection',
     imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=women&subcategory=winter'
+    link: '/product/premium-wool-trench-coat'
   }
 ]
 
@@ -116,18 +117,23 @@ export const WomenCollection: React.FC = () => {
           viewport={{ once: true, margin: '-100px' }}
           className="flex lg:grid overflow-x-auto lg:overflow-x-visible overflow-y-hidden snap-x snap-mandatory lg:snap-none gap-4 md:gap-8 pb-6 lg:pb-0 scrollbar-none lg:grid-cols-4 w-full after:content-[''] after:w-4 md:after:w-8 after:flex-shrink-0"
         >
-          {WOMEN_CATEGORIES.map((cat, idx) => (
-            <ProductCard
-              key={idx}
-              id={`women-cat-${idx}`}
-              name={cat.name}
-              badge="WOMEN"
-              description={cat.description}
-              imageUrl={cat.imageUrl}
-              price="Starts ₹999"
-              link={cat.link}
-            />
-          ))}
+          {WOMEN_CATEGORIES.map((cat, idx) => {
+            const productSlug = cat.link.split('/').pop()
+            const prod = MOCK_PRODUCTS.find((p) => p.slug === productSlug)
+            return (
+              <ProductCard
+                key={idx}
+                id={`women-cat-${idx}`}
+                name={cat.name}
+                badge="WOMEN"
+                description={cat.description}
+                imageUrl={cat.imageUrl}
+                price="Starts ₹999"
+                link={cat.link}
+                product={prod}
+              />
+            )
+          })}
         </motion.div>
       </div>
 

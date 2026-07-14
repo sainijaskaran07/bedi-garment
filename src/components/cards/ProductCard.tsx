@@ -3,6 +3,9 @@ import { motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Heart, ArrowRight } from 'lucide-react'
+import { useShop } from '../../context'
+import type { Product } from '../../types'
+import { MOCK_PRODUCTS } from '../../data'
 
 export interface ProductCardProps {
   id: string | number
@@ -12,6 +15,8 @@ export interface ProductCardProps {
   imageUrl: string
   price: string
   link: string
+  /** When provided, the wishlist heart toggles the real global wishlist. */
+  product?: Product
 }
 
 const cardVariants: Variants = {
@@ -30,14 +35,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   description,
   imageUrl,
   price,
-  link
+  link,
+  product
 }) => {
-  const [isFavorite, setIsFavorite] = useState(false)
+  const { toggleWishlist, isInWishlist } = useShop()
+  const resolvedProduct = product || MOCK_PRODUCTS.find(p => p.id === String(id) || p.slug === String(id) || p.name === name)
+
+  const [localFavorite, setLocalFavorite] = useState(false)
+  const isFavorite = resolvedProduct ? isInWishlist(resolvedProduct.id) : localFavorite
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setIsFavorite(!isFavorite)
+    if (resolvedProduct) {
+      toggleWishlist(resolvedProduct)
+    } else {
+      setLocalFavorite(!localFavorite)
+    }
   }
 
   return (
@@ -63,6 +77,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5 opacity-80 group-hover:opacity-90 transition-opacity duration-300 pointer-events-none" />
       </Link>
 
+      {/* Top corner discount tag */}
+      {resolvedProduct?.discount && (
+        <span className="absolute top-5 left-5 z-10 bg-red-600 text-white text-[8px] font-heading font-extrabold tracking-wider uppercase px-2 py-1 rounded-sm shadow-md">
+          -{resolvedProduct.discount}
+        </span>
+      )}
+
       {/* Wishlist Icon Button */}
       <button
         onClick={toggleFavorite}
@@ -78,11 +99,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* Overlaid Card Info Box */}
       {/* Information moves upward slightly on card hover */}
       <div className="relative z-10 p-6 sm:p-8 text-white space-y-3.5 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-        {/* Badge */}
-        <div>
+        {/* Badge & Rating Row */}
+        <div className="flex items-center justify-between w-full">
           <span className="text-[9px] font-heading font-extrabold tracking-[0.2em] text-brand-accent uppercase bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-sm">
             {badge}
           </span>
+          {resolvedProduct?.rating && (
+            <span className="text-[9px] font-heading font-extrabold text-brand-accent flex items-center space-x-1 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-sm">
+              <span>★</span>
+              <span>{resolvedProduct.rating}</span>
+            </span>
+          )}
         </div>
 
         {/* Title & Desc */}
@@ -90,7 +117,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <h3 className="font-heading text-lg sm:text-xl font-extrabold tracking-wide uppercase leading-tight">
             {name}
           </h3>
-          <p className="text-[11px] sm:text-xs text-slate-300 font-body leading-relaxed max-w-xs font-medium">
+          <p className="text-[11px] sm:text-xs text-slate-300 font-body leading-relaxed max-w-xs font-medium font-medium">
             {description}
           </p>
         </div>

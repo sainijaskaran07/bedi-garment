@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -c core.pager=cat diff -- src/components/hero/EditorialCampaign.tsx src/components/hero/FeaturedCampaign.tsx src/context/ShopContext.tsx src/pages/Wishlist/index.tsx src/index.css)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"===TSC EXIT: $?===\")",
+      "Bash(npm run *)",
+      "Bash(npx oxlint *)",
+      "Bash(echo \"===EXIT: $?===\")",
+      "Bash(echo \"===BUILD EXIT: $?===\")",
+      "Bash(echo \"===LINT EXIT: $?===\")",
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(echo \"OXLINT_EXIT=$?\")",
+      "Bash(echo \"BUILD_EXIT=$?\")",
+      "Bash(git check-ignore *)",
+      "Bash(rm -f .claude/launch.json)",
+      "Bash(rmdir .claude)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --base main --head fix/mobile-nav-cart-product-delivery --title 'Fix mobile nav, cart/product flows, delivery estimates & banner links' --body ' *)",
+      "PowerShell($g = Get-Command gh -ErrorAction SilentlyContinue; if \\($g\\) { \"FOUND: \" + $g.Source } else { \"gh NOT found\" })"
+    ]
+  }
+}

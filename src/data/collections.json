@@ -6,7 +6,7 @@
     "description": "Modern Shirts, Jeans & Casual Wear",
     "imageUrl": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&h=1100&q=80",
     "price": "₹999",
-    "link": "/men"
+    "link": "/product/classic-double-breasted-blazer"
   },
   {
     "id": 2,
@@ -15,7 +15,7 @@
     "description": "Suits, Kurtis, Dresses & Ethnic Wear",
     "imageUrl": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&h=1100&q=80",
     "price": "₹1,299",
-    "link": "/women"
+    "link": "/product/heritage-banarasi-silk-saree"
   },
   {
     "id": 3,
@@ -24,7 +24,7 @@
     "description": "Comfortable Clothing for Every Age",
     "imageUrl": "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=800&h=1100&q=80",
     "price": "₹499",
-    "link": "/kids"
+    "link": "/product/girls-floral-frock-dress"
   },
   {
     "id": 4,
@@ -33,6 +33,6 @@
     "description": "Premium Uniform Solutions",
     "imageUrl": "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=800&h=1100&q=80",
     "price": "₹799",
-    "link": "/uniforms"
+    "link": "/product/premium-school-uniform-set"
   }
 ]

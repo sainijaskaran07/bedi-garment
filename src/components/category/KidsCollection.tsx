@@ -4,6 +4,7 @@ import type { Variants } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { ProductCard } from '../cards'
+import { MOCK_PRODUCTS } from '../../data'
 
 // Import generated editorial assets
 import ethnicBanner from '@/assets/banners/kids_ethnic_banner.jpg'
@@ -22,49 +23,49 @@ const KIDS_CATEGORIES: Category[] = [
     name: 'Everyday Wear',
     description: 'Everyday Comfort',
     imageUrl: 'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=everyday'
+    link: '/product/kids-cotton-floral-dress'
   },
   {
     name: 'Party Wear',
     description: 'Premium Kids Fashion',
     imageUrl: 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=party'
+    link: '/product/girls-floral-frock-dress'
   },
   {
     name: 'Ethnic Wear',
     description: 'Festive Styles for Kids',
     imageUrl: 'https://images.unsplash.com/photo-1599842057874-37393e9342df?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=ethnic'
+    link: '/product/girls-floral-frock-dress'
   },
   {
     name: 'Winter Wear',
     description: 'Warm Winter Essentials',
     imageUrl: 'https://images.unsplash.com/photo-1540815601364-77f05251a37c?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=winter'
+    link: '/product/premium-woolen-winter-trench-coat'
   },
   {
     name: 'School Uniforms',
     description: 'School Ready Collection',
     imageUrl: 'https://images.unsplash.com/photo-1603138461766-e5a9ee083161?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=uniforms'
+    link: '/product/kids-school-uniform-skirt-trouser'
   },
   {
     name: 'Baby Essentials',
     description: 'Comfortable Clothing for Every Age',
     imageUrl: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=baby'
+    link: '/product/kids-cotton-floral-dress'
   },
   {
     name: 'New Arrivals',
     description: 'Premium Kids Fashion',
     imageUrl: 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=new'
+    link: '/product/girls-floral-frock-dress'
   },
   {
     name: 'Accessories',
     description: 'Everyday Comfort',
     imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=600&h=800&q=80',
-    link: '/shop?category=kids&subcategory=accessories'
+    link: '/product/kids-cotton-floral-dress'
   }
 ]
 
@@ -116,18 +117,23 @@ export const KidsCollection: React.FC = () => {
           viewport={{ once: true, margin: '-100px' }}
           className="flex lg:grid overflow-x-auto lg:overflow-x-visible overflow-y-hidden snap-x snap-mandatory lg:snap-none gap-4 md:gap-8 pb-6 lg:pb-0 scrollbar-none lg:grid-cols-4 w-full after:content-[''] after:w-4 md:after:w-8 after:flex-shrink-0"
         >
-          {KIDS_CATEGORIES.map((cat, idx) => (
-            <ProductCard
-              key={idx}
-              id={`kids-cat-${idx}`}
-              name={cat.name}
-              badge="KIDS"
-              description={cat.description}
-              imageUrl={cat.imageUrl}
-              price="Starts ₹499"
-              link={cat.link}
-            />
-          ))}
+          {KIDS_CATEGORIES.map((cat, idx) => {
+            const productSlug = cat.link.split('/').pop()
+            const prod = MOCK_PRODUCTS.find((p) => p.slug === productSlug)
+            return (
+              <ProductCard
+                key={idx}
+                id={`kids-cat-${idx}`}
+                name={cat.name}
+                badge="KIDS"
+                description={cat.description}
+                imageUrl={cat.imageUrl}
+                price="Starts ₹499"
+                link={cat.link}
+                product={prod}
+              />
+            )
+          })}
         </motion.div>
       </div>
 

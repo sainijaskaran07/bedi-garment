@@ -54,6 +54,12 @@ export const CategoryPage: React.FC<CategoryProps> = ({ category: propCategory }
   const [sortBy, setSortBy] = useState<string>('newest')
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
+  const [showAllProducts, setShowAllProducts] = useState<boolean>(false)
+
+  // Reset showAllProducts when category changes
+  useEffect(() => {
+    setShowAllProducts(false)
+  }, [category])
 
   // Sync subcategory selection when URL query param changes
   React.useEffect(() => {
@@ -81,7 +87,7 @@ export const CategoryPage: React.FC<CategoryProps> = ({ category: propCategory }
   const categoryProducts = useMemo(() => {
     if (category === 'new-arrivals') {
       // Exactly 2 relevant products for the new arrivals banner page
-      return MOCK_PRODUCTS.slice(0, 2)
+      return MOCK_PRODUCTS.filter(p => p.id === 'prod-1' || p.id === 'prod-20')
     }
     if (category === 'shop') return MOCK_PRODUCTS
     return MOCK_PRODUCTS.filter((p) => p.category === category)
@@ -142,13 +148,24 @@ export const CategoryPage: React.FC<CategoryProps> = ({ category: propCategory }
     return result
   }, [categoryProducts, selectedSubcategories, selectedSizes, selectedColors, selectedBrands, maxPrice, sortBy])
 
+  // Dynamic visibility limit for category collection pages
+  const visibleProducts = useMemo(() => {
+    if (category === 'shop' || category === 'new-arrivals' || showAllProducts) {
+      return filteredProducts
+    }
+    return filteredProducts.slice(0, 4)
+  }, [filteredProducts, category, showAllProducts])
+
   // Pagination logic
   const itemsPerPage = 8
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+  const totalPages = Math.ceil((category !== 'shop' && !showAllProducts ? visibleProducts.length : filteredProducts.length) / itemsPerPage)
   const paginatedProducts = useMemo(() => {
+    if (category !== 'shop' && !showAllProducts) {
+      return visibleProducts
+    }
     const start = (currentPage - 1) * itemsPerPage
     return filteredProducts.slice(start, start + itemsPerPage)
-  }, [filteredProducts, currentPage])
+  }, [filteredProducts, visibleProducts, category, showAllProducts, currentPage])
 
   // Reset filters helper
   const handleResetFilters = () => {
@@ -528,6 +545,18 @@ export const CategoryPage: React.FC<CategoryProps> = ({ category: propCategory }
                   })
                 )}
               </div>
+
+              {/* View All / Explore Collection Button */}
+              {category !== 'shop' && category !== 'new-arrivals' && !showAllProducts && filteredProducts.length > 4 && (
+                <div className="flex justify-center mt-12">
+                  <button
+                    onClick={() => setShowAllProducts(true)}
+                    className="px-8 py-3 bg-brand-text text-white text-[10px] font-heading font-extrabold tracking-[0.2em] uppercase rounded hover:bg-brand-accent transition-colors duration-300 shadow-md cursor-pointer"
+                  >
+                    View All / Explore Collection
+                  </button>
+                </div>
+              )}
 
               {/* Pagination controls */}
               {totalPages > 1 && (
