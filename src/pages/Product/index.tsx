@@ -4,6 +4,7 @@ import { MOCK_PRODUCTS } from '../../data'
 import { useShop } from '../../context'
 import { Heart, Star, ShoppingBag, Plus, Minus, ArrowLeft, ChevronRight } from 'lucide-react'
 import { SEO } from '../../components/common'
+import { validatePincode, getDeliveryEstimate, DELIVERY_ZONES } from '../../utils'
 
 
 export const ProductPage: React.FC = () => {
@@ -23,6 +24,26 @@ export const ProductPage: React.FC = () => {
   const [quantity, setQuantity] = useState<number>(1)
   const [activeTab, setActiveTab] = useState<'details' | 'shipping'>('details')
   const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({ display: 'none' })
+  const [pincode, setPincode] = useState('')
+  const [pincodeError, setPincodeError] = useState('')
+  const [pincodeResult, setPincodeResult] = useState('')
+
+  const handlePincodeCheck = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPincodeError('')
+    setPincodeResult('')
+
+    // Validate: numbers only, exactly 6 digits (rejects letters, symbols, spaces, emojis)
+    const { valid, error } = validatePincode(pincode)
+    if (!valid) {
+      setPincodeError(error || 'Please enter a valid 6-digit pincode.')
+      return
+    }
+
+    // Modular estimate (swappable for a backend serviceability/ETA API later)
+    const estimate = getDeliveryEstimate(pincode)
+    setPincodeResult(`📍 ${estimate.message}`)
+  }
 
   // Triggered when product changes
   useEffect(() => {
@@ -36,7 +57,7 @@ export const ProductPage: React.FC = () => {
       // If product not found, redirect to 404
       navigate('/404')
     }
-  }, [product, navigate])
+  }, [product, navigate, addToRecentlyViewed])
 
   // Get related products (same category, exclude current)
   const relatedProducts = useMemo(() => {
@@ -81,13 +102,17 @@ export const ProductPage: React.FC = () => {
   const handleAddToCart = () => {
     if (!selectedColor) return
     addToCart(product, selectedSize, selectedColor, quantity)
-    
-    // Quick notification alerts or standard visual feedback
-    alert(`Added ${quantity}x ${product.name} to Cart.`)
   }
 
   const handleCheckoutNow = () => {
     if (!selectedColor) return
+    const isLoggedIn = !!localStorage.getItem('bg_current_user')
+    if (!isLoggedIn) {
+      // addToCart stores the pending item and redirects to login;
+      // after successful login the user is returned to the cart.
+      addToCart(product, selectedSize, selectedColor, quantity)
+      return
+    }
     addToCart(product, selectedSize, selectedColor, quantity)
     navigate('/cart')
   }
@@ -153,7 +178,7 @@ export const ProductPage: React.FC = () => {
             onMouseLeave={handleMouseLeave}
           >
             <img
-              src={selectedImage}
+              src={selectedImage || product.images[0]}
               alt={product.name}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -378,9 +403,68 @@ export const ProductPage: React.FC = () => {
               {activeTab === 'details' ? (
                 <p>{product.description}</p>
               ) : (
-                <p>
-                  Free shipping on orders above ₹1,999. Stitched orders are shipped within 5-7 business days from our warehouse in Anandpur Sahib. Returns are accepted within 15 days in pristine condition.
-                </p>
+                <div className="space-y-4">
+                  <p>
+                    Free shipping on orders above ₹1,999. Stitched orders are shipped within 5-7 business days from our warehouse in Anandpur Sahib. Returns are accepted within 15 days in pristine condition.
+                  </p>
+
+                  {/* Estimated Delivery Timelines by region */}
+                  <div className="border border-border-primary/60 rounded-xl overflow-hidden">
+                    <div className="bg-bg-secondary/60 px-4 py-2.5 border-b border-border-primary/60">
+                      <h4 className="font-heading text-[10px] font-extrabold tracking-wider text-brand-text uppercase">
+                        Estimated Delivery Timelines
+                      </h4>
+                    </div>
+                    <ul className="divide-y divide-border-primary/40">
+                      <li className="flex items-center justify-between gap-3 px-4 py-2.5">
+                        <span className="font-medium text-brand-text">{DELIVERY_ZONES.north.zone}</span>
+                        <span className="font-heading font-bold text-brand-text whitespace-nowrap">{DELIVERY_ZONES.north.days}</span>
+                      </li>
+                      <li className="flex items-center justify-between gap-3 px-4 py-2.5">
+                        <span className="font-medium text-brand-text">{DELIVERY_ZONES.southWest.zone}</span>
+                        <span className="font-heading font-bold text-brand-text whitespace-nowrap">{DELIVERY_ZONES.southWest.days}</span>
+                      </li>
+                      <li className="flex items-start justify-between gap-3 px-4 py-2.5">
+                        <span className="font-medium text-brand-text">{DELIVERY_ZONES.international.zone}</span>
+                        <span className="font-heading font-bold text-brand-text text-right">{DELIVERY_ZONES.international.days}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Pincode Check Block */}
+                  <div className="border border-border-primary/60 p-4 rounded-xl bg-bg-secondary/40 mt-4 space-y-3">
+                    <h4 className="font-heading text-[10px] font-extrabold tracking-wider text-brand-text uppercase">
+                      Check Delivery by Pincode
+                    </h4>
+                    <form onSubmit={handlePincodeCheck} className="flex gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={pincode}
+                        onChange={(e) => setPincode(e.target.value)}
+                        placeholder="Enter Pincode (e.g. 140115)"
+                        className="flex-1 min-w-0 h-9 px-3 text-xs font-heading font-medium tracking-wide bg-white text-brand-text placeholder-brand-text-muted/50 rounded border border-border-primary/80 focus:outline-none focus:border-brand-accent/60"
+                      />
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-brand-text text-white text-[10px] font-heading font-extrabold tracking-widest uppercase rounded hover:bg-brand-accent transition-colors duration-200 focus:outline-none cursor-pointer"
+                      >
+                        Check
+                      </button>
+                    </form>
+                    {pincodeError && (
+                      <p className="text-[10px] font-medium text-red-600 leading-tight">
+                        ⚠️ {pincodeError}
+                      </p>
+                    )}
+                    {pincodeResult && (
+                      <p className="text-[10px] font-bold text-green-700 leading-tight">
+                        {pincodeResult}
+                      </p>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>

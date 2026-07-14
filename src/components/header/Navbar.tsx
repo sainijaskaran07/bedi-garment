@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { AnnouncementBar } from './AnnouncementBar'
 import { Logo } from './Logo'
 import { SearchBar } from './SearchBar'
@@ -11,8 +10,7 @@ import { useShop } from '../../context'
 
 export const Navbar: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false)
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
-  const [mobileQuery, setMobileQuery] = useState('')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { cartCount, wishlist } = useShop()
 
   useEffect(() => {
@@ -22,6 +20,14 @@ export const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Auto-close the mobile menu as soon as the user scrolls the page
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+    const closeOnScroll = () => setIsMobileMenuOpen(false)
+    window.addEventListener('scroll', closeOnScroll, { passive: true })
+    return () => window.removeEventListener('scroll', closeOnScroll)
+  }, [isMobileMenuOpen])
 
   return (
     <header className="contents">
@@ -40,7 +46,9 @@ export const Navbar: React.FC = () => {
 
       {/* Top Navbar Row: Always sticky at the top-0 on all devices */}
       <div
-        className={`w-full bg-white border-b border-border-primary/60 sticky top-0 z-[999] transition-all duration-300 ${
+        className={`w-full bg-white border-b border-border-primary/60 sticky top-0 transition-all duration-300 ${
+          isMobileMenuOpen ? 'z-[100000]' : 'z-[9999]'
+        } ${
           isSticky 
             ? 'shadow-[0_4px_12px_rgba(0,0,0,0.03)] backdrop-blur-md bg-white/95' 
             : ''
@@ -50,7 +58,7 @@ export const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-20 flex items-center justify-between relative">
           {/* Mobile Hamburger menu */}
           <div className="flex items-center md:hidden">
-            <MobileMenu />
+            <MobileMenu isOpen={isMobileMenuOpen} setIsOpen={setIsMobileMenuOpen} />
           </div>
 
           {/* Desktop Search Bar */}
@@ -66,46 +74,11 @@ export const Navbar: React.FC = () => {
           {/* Action Icons */}
           <div className="flex-1 flex justify-end">
             <NavIcons 
-              onSearchToggle={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
               cartItemCount={cartCount}
               wishlistItemCount={wishlist.length}
             />
           </div>
         </div>
-
-        {/* Mobile Slide-down Search Input */}
-        <AnimatePresence>
-          {isMobileSearchOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-              className="md:hidden w-full bg-white border-t border-border-primary/40 px-4 py-2.5 overflow-hidden"
-            >
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  value={mobileQuery}
-                  onChange={(e) => setMobileQuery(e.target.value)}
-                  placeholder="Search shirts, suits, uniforms..."
-                  className="w-full h-9 pl-9 pr-8 text-xs font-heading font-medium tracking-wide bg-bg-secondary text-brand-text placeholder-brand-text-muted/50 rounded border border-border-primary/20 focus:outline-none"
-                  autoFocus
-                />
-                <Search size={14} className="absolute left-3 text-brand-text-muted/60" />
-                {mobileQuery && (
-                  <button
-                    onClick={() => setMobileQuery('')}
-                    className="absolute right-3 p-0.5 rounded-full text-brand-text-muted/85 hover:bg-slate-200"
-                    aria-label="Clear mobile search"
-                  >
-                    <X size={10} />
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Desktop Navigation Links Row: Non-sticky (scrolls away naturally) */}

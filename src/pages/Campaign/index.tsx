@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ShoppingBag } from 'lucide-react'
+import { MOCK_PRODUCTS } from '../../data'
 
 const CAMPAIGN_IMAGES = [
   'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&h=900&q=80',
@@ -21,8 +22,10 @@ export const CampaignPage: React.FC = () => {
     return () => clearInterval(interval)
   }, [])
 
+  const campaignProducts = MOCK_PRODUCTS.filter(p => p.id === 'prod-1' || p.id === 'prod-20')
+
   return (
-    <div className="relative w-full h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] overflow-hidden bg-bg-secondary select-none text-brand-text font-body flex items-center justify-center">
+    <div className="relative w-full min-h-screen py-10 md:py-20 overflow-y-auto bg-bg-secondary select-none text-brand-text font-body flex items-center justify-center">
       {/* Background Images Crossfade Slideshow changing auto after 3 sec infinite */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
         <AnimatePresence mode="popLayout">
@@ -79,6 +82,37 @@ export const CampaignPage: React.FC = () => {
             Explore Home
           </Link>
         </div>
+
+        {/* Campaign Products Showcase */}
+        <div className="mt-10 w-full border-t border-border-primary/50 pt-8">
+          <h2 className="font-heading text-xs font-extrabold tracking-widest text-brand-text uppercase mb-6">
+            Featured Campaign Pieces
+          </h2>
+          <div className="grid grid-cols-2 gap-6 w-full max-w-md mx-auto">
+            {campaignProducts.map((prod) => (
+              <Link 
+                key={prod.id} 
+                to={`/product/${prod.slug}`} 
+                className="group flex flex-col text-left animate-none"
+              >
+                <div className="aspect-[3/4] w-full rounded-2xl overflow-hidden bg-bg-secondary border border-border-primary/20 relative shadow-sm">
+                  <img 
+                    src={prod.images[0]} 
+                    alt={prod.name} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103" 
+                  />
+                </div>
+                <h3 className="font-heading text-[11px] font-bold text-brand-text mt-3 truncate group-hover:text-brand-accent transition-colors duration-200">
+                  {prod.name}
+                </h3>
+                <p className="font-heading text-[10px] font-semibold text-brand-accent mt-1">
+                  ₹{prod.price}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   )

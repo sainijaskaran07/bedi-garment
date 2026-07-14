@@ -1,34 +1,23 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, User, ShoppingBag, Search } from 'lucide-react'
+import { Heart, User, ShoppingBag } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 interface NavIconsProps {
-  onSearchToggle?: () => void
   cartItemCount?: number
   wishlistItemCount?: number
 }
 
 export const NavIcons: React.FC<NavIconsProps> = ({
-  onSearchToggle,
   cartItemCount = 0,
   wishlistItemCount = 0
 }) => {
   return (
     <div className="flex items-center space-x-1.5 md:space-x-2 text-brand-text select-none">
-      {/* Mobile/Tablet Search Toggle (Visible below md) */}
-      <button
-        onClick={onSearchToggle}
-        className="p-2 rounded-full hover:bg-bg-secondary transition-colors duration-300 md:hidden focus:outline-none focus:ring-1 focus:ring-brand-accent/40"
-        aria-label="Toggle mobile search"
-      >
-        <Search size={18} strokeWidth={2.2} />
-      </button>
-
-      {/* Account Icon (Desktop only) */}
+      {/* Account Icon */}
       <Link
         to="/profile"
-        className="p-2 rounded-full hover:bg-bg-secondary transition-colors duration-300 hidden md:inline-flex focus:outline-none focus:ring-1 focus:ring-brand-accent/40"
+        className="p-2 rounded-full hover:bg-bg-secondary transition-colors duration-300 inline-flex focus:outline-none focus:ring-1 focus:ring-brand-accent/40"
         aria-label="Go to Profile"
       >
         <motion.div 

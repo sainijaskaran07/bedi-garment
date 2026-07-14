@@ -1,6 +1,6 @@
 import type { Product } from '../types'
 
-export const MOCK_PRODUCTS: Product[] = [
+const RAW_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
     name: 'Classic Double-Breasted Blazer',
@@ -586,3 +586,37 @@ export const MOCK_PRODUCTS: Product[] = [
     keywords: ['pants', 'linen pants', 'sale', 'clearance', 'lounge trousers']
   }
 ]
+
+export const MOCK_PRODUCTS: Product[] = RAW_PRODUCTS.map(product => {
+  // deterministic price between 100 and 5000 based on id
+  let hash = 0;
+  for (let i = 0; i < product.id.length; i++) {
+    hash = product.id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const min = 100;
+  const max = 5000;
+  const rawPrice = min + (Math.abs(hash) % (max - min + 1));
+  const price = Math.round(rawPrice / 50) * 50;
+
+  // Let's set originalPrice if the product originally had one
+  let originalPrice = undefined;
+  if (product.originalPrice) {
+    originalPrice = Math.round((price * 1.3) / 50) * 50;
+    if (originalPrice > 5000) {
+      originalPrice = 5000;
+    }
+  }
+
+  // Ensure discount percentage is recalculated or set correctly
+  let discount = product.discount;
+  if (originalPrice && originalPrice > price) {
+    discount = `${Math.round(((originalPrice - price) / originalPrice) * 100)}%`;
+  }
+
+  return {
+    ...product,
+    price: Math.min(Math.max(price, 100), 5000),
+    originalPrice: originalPrice ? Math.min(Math.max(originalPrice, 100), 5000) : undefined,
+    discount: discount
+  };
+});

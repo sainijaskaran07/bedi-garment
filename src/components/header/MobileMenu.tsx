@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Search, Phone, MapPin } from 'lucide-react'
 import { Logo } from './Logo'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-const MOBILE_LINKS = [
+const BASE_MOBILE_LINKS = [
   { name: 'Home', href: '/' },
   { name: 'Men', href: '/men' },
   { name: 'Women', href: '/women' },
@@ -15,12 +15,33 @@ const MOBILE_LINKS = [
   { name: 'Sale', href: '/sale', isSale: true }
 ]
 
-export const MobileMenu: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false)
+interface MobileMenuProps {
+  isOpen: boolean
+  setIsOpen: (isOpen: boolean) => void
+}
+
+export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, setIsOpen }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const location = useLocation()
+  const navigate = useNavigate()
 
   const handleToggle = () => setIsOpen(!isOpen)
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    setIsOpen(false)
+  }
+
+  // Show Sign Up for logged-out visitors. Profile & Logout live in the navbar /
+  // profile page, so they are intentionally kept out of the menu.
+  const isLoggedIn = !!localStorage.getItem('bg_current_user')
+
+  const menuLinks = [
+    ...BASE_MOBILE_LINKS,
+    ...(!isLoggedIn ? [{ name: 'Sign Up', href: '/profile?view=signup' }] : [])
+  ]
 
   return (
     <div className="md:hidden">
@@ -43,7 +64,7 @@ export const MobileMenu: React.FC = () => {
               animate={{ opacity: 0.4 }}
               exit={{ opacity: 0 }}
               onClick={handleToggle}
-              className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[999]"
+              className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[99998]"
             />
 
             {/* Slide-out Drawer Panel */}
@@ -52,10 +73,10 @@ export const MobileMenu: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-              className="fixed inset-y-0 left-0 w-full max-w-[300px] bg-white border-r border-border-primary z-[1000] flex flex-col h-full shadow-2xl overflow-hidden"
+              className="fixed inset-y-0 left-0 w-full max-w-[300px] bg-white border-r border-border-primary z-[99999] flex flex-col h-[100dvh] shadow-2xl overflow-hidden"
             >
-              {/* Drawer Header */}
-              <div className="flex items-center justify-between p-4 border-b border-border-primary/60">
+              {/* Drawer Header - Proper top padding to prevent touching top edge/notch */}
+              <div className="flex items-center justify-between pt-12 pb-4 px-4 border-b border-border-primary/60 flex-shrink-0">
                 <Logo />
                 <button
                   onClick={handleToggle}
@@ -66,8 +87,8 @@ export const MobileMenu: React.FC = () => {
                 </button>
               </div>
 
-              {/* Search Inside Drawer */}
-              <div className="p-4 border-b border-border-primary/40 bg-bg-secondary/40">
+              {/* Search Inside Drawer Only */}
+              <form onSubmit={handleSearchSubmit} className="p-4 border-b border-border-primary/40 bg-bg-secondary/40 flex-shrink-0">
                 <div className="relative flex items-center">
                   <input
                     type="text"
@@ -79,6 +100,7 @@ export const MobileMenu: React.FC = () => {
                   <Search size={12} className="absolute left-3 text-brand-text-muted/60" />
                   {searchQuery && (
                     <button
+                      type="button"
                       onClick={() => setSearchQuery('')}
                       className="absolute right-2.5 p-0.5 rounded-full text-brand-text-muted/80 hover:bg-slate-200"
                     >
@@ -86,7 +108,7 @@ export const MobileMenu: React.FC = () => {
                     </button>
                   )}
                 </div>
-              </div>
+              </form>
 
               {/* Navigation Link List (Staggered Animation) */}
               <div className="flex-1 overflow-y-auto px-5 py-6">
@@ -102,8 +124,9 @@ export const MobileMenu: React.FC = () => {
                   animate="show"
                   className="space-y-4"
                 >
-                  {MOBILE_LINKS.map((link) => {
+                  {menuLinks.map((link) => {
                     const isActive = location.pathname === link.href
+
                     return (
                       <motion.li
                         key={link.name}
@@ -114,7 +137,7 @@ export const MobileMenu: React.FC = () => {
                       >
                         <Link
                           to={link.href}
-                          onClick={handleToggle}
+                          onClick={() => setIsOpen(false)}
                           className={`block font-heading text-xs font-bold tracking-[0.2em] uppercase py-1 focus:outline-none transition-colors duration-200 ${
                             isActive 
                               ? 'text-brand-accent font-extrabold' 
@@ -132,7 +155,7 @@ export const MobileMenu: React.FC = () => {
               </div>
 
               {/* Drawer Footer with Store Metadata */}
-              <div className="p-4 bg-bg-secondary border-t border-border-primary/60 space-y-4 text-xs">
+              <div className="p-4 bg-bg-secondary border-t border-border-primary/60 space-y-4 text-xs flex-shrink-0">
                 <div className="flex items-start space-x-2">
                   <MapPin size={14} className="text-brand-accent mt-0.5 flex-shrink-0" />
                   <div>

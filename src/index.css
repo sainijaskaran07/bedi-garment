@@ -13,7 +13,15 @@
 }
 
 @layer base {
+  /* Prevent horizontal scroll without turning <body> into a scroll container
+     (overflow-x: hidden on body breaks the sticky navbar; clip does not). */
+  html {
+    overflow-x: hidden;
+  }
+
   body {
+    overflow-x: clip;
+    max-width: 100%;
     font-family: var(--font-body);
     background-color: var(--color-bg-primary);
     color: var(--color-brand-text);

@@ -79,7 +79,11 @@ export const CategoryPage: React.FC<CategoryProps> = ({ category: propCategory }
 
   // Products filtered by category
   const categoryProducts = useMemo(() => {
-    if (category === 'shop' || category === 'new-arrivals') return MOCK_PRODUCTS
+    if (category === 'new-arrivals') {
+      // Exactly 2 relevant products for the new arrivals banner page
+      return MOCK_PRODUCTS.slice(0, 2)
+    }
+    if (category === 'shop') return MOCK_PRODUCTS
     return MOCK_PRODUCTS.filter((p) => p.category === category)
   }, [category])
 
@@ -212,7 +216,7 @@ export const CategoryPage: React.FC<CategoryProps> = ({ category: propCategory }
 
       {/* 2. Breadcrumbs & Toolbar */}
       <div className="border-b border-border-primary/50 bg-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-2.5 md:py-0 md:h-14 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-2.5">
           {/* Breadcrumbs */}
           <div className="flex items-center space-x-1.5 text-[10px] font-heading font-bold text-brand-text-muted uppercase tracking-wider">
             <a href="/" className="hover:text-brand-accent">Home</a>

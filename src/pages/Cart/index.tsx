@@ -1,12 +1,47 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useShop } from '../../context'
+import { useNavigate } from 'react-router-dom'
 import { Plus, Minus, Trash2, ArrowRight, ShoppingBag } from 'lucide-react'
 
 export const CartPage: React.FC = () => {
   const { cart, removeFromCart, updateCartQuantity, cartSubtotal, cartTotal } = useShop()
+  const navigate = useNavigate()
+  
+  const [promoCode, setPromoCode] = useState('')
+  const [promoMessage, setPromoMessage] = useState('')
+  const [appliedDiscount, setAppliedDiscount] = useState(0)
+
+  const handleApplyPromo = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPromoMessage('')
+    if (!promoCode.trim()) {
+      setPromoMessage('Please enter a coupon code.')
+      return
+    }
+    const code = promoCode.trim().toUpperCase()
+    if (code === 'BEDINEW26') {
+      setAppliedDiscount(Math.round(cartSubtotal * 0.15))
+      setPromoMessage('Promo code BEDINEW26 (15% OFF) applied successfully!')
+    } else if (code === 'WELCOME10') {
+      setAppliedDiscount(Math.round(cartSubtotal * 0.10))
+      setPromoMessage('Promo code WELCOME10 (10% OFF) applied successfully!')
+    } else {
+      setPromoMessage('Invalid coupon code. Please try again.')
+      setAppliedDiscount(0)
+    }
+  }
+
+  const finalTotal = Math.max(cartTotal - appliedDiscount, 0)
 
   const handleCheckout = (e: React.FormEvent) => {
     e.preventDefault()
+    const isLoggedIn = !!localStorage.getItem('bg_current_user')
+    if (!isLoggedIn) {
+      // Preserve intended destination so the user returns here after login
+      localStorage.setItem('bg_redirect_after_login', '/cart')
+      navigate('/profile')
+      return
+    }
     alert('Checkout feature is ready for backend integration! Payment gateway details (Razorpay/Stripe) are loaded from env variables.')
   }
 
@@ -30,9 +65,9 @@ export const CartPage: React.FC = () => {
             {/* Left: Cart Items List (8 Columns) */}
             <div className="lg:col-span-8 space-y-6">
               {cart.map((item, index) => (
-                <div 
+                <div
                   key={`${item.product.id}-${item.selectedSize}-${item.selectedColor.name}-${index}`}
-                  className="flex items-center space-x-4 p-4 md:p-6 bg-bg-secondary/30 border border-border-primary/40 rounded-2xl group relative"
+                  className="flex flex-wrap sm:flex-nowrap items-center gap-4 gap-y-4 p-4 md:p-6 bg-bg-secondary/30 border border-border-primary/40 rounded-2xl group relative"
                 >
                   {/* Thumbnail Image */}
                   <a 
@@ -43,7 +78,7 @@ export const CartPage: React.FC = () => {
                   </a>
 
                   {/* Item Description */}
-                  <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex-1 min-w-0 basis-[calc(100%-6rem)] sm:basis-auto space-y-1">
                     <span className="text-[8px] font-heading font-extrabold tracking-wider text-brand-accent uppercase">
                       {item.product.brand}
                     </span>
@@ -117,15 +152,48 @@ export const CartPage: React.FC = () => {
                   <span>Subtotal</span>
                   <span className="text-brand-text font-bold">₹{cartSubtotal}</span>
                 </div>
+                {appliedDiscount > 0 && (
+                  <div className="flex justify-between text-green-600 font-semibold">
+                    <span>Coupon Discount</span>
+                    <span>-₹{appliedDiscount}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Estimated Shipping</span>
                   <span className="text-green-600 font-bold uppercase tracking-wider text-[10px]">Free</span>
                 </div>
                 <div className="flex justify-between border-t border-border-primary/60 pt-4 text-sm">
                   <span className="text-brand-text font-extrabold uppercase tracking-wide">Total Estimate</span>
-                  <span className="text-brand-accent font-extrabold text-base">₹{cartTotal}</span>
+                  <span className="text-brand-accent font-extrabold text-base">₹{finalTotal}</span>
                 </div>
               </div>
+
+              {/* Coupon Form Input Block */}
+              <form onSubmit={handleApplyPromo} className="border-t border-b border-border-primary/60 py-4 my-2 space-y-2">
+                <label className="block text-[10px] font-heading font-extrabold tracking-wider text-brand-text uppercase">
+                  Promo / Coupon Code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    placeholder="Enter Coupon (e.g. BEDINEW26)"
+                    className="flex-1 h-9 px-3 text-xs font-heading font-medium tracking-wide bg-white text-brand-text placeholder-brand-text-muted/50 rounded border border-border-primary/80 focus:outline-none focus:border-brand-accent/60"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-brand-text text-white text-[10px] font-heading font-extrabold tracking-widest uppercase rounded hover:bg-brand-accent transition-colors duration-300 focus:outline-none cursor-pointer"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {promoMessage && (
+                  <p className={`text-[10px] font-semibold leading-tight ${appliedDiscount > 0 ? 'text-green-700' : 'text-red-600'}`}>
+                    {appliedDiscount > 0 ? '✓' : '⚠️'} {promoMessage}
+                  </p>
+                )}
+              </form>
 
               {/* Checkout Form Action Button */}
               <form onSubmit={handleCheckout}>
