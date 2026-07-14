@@ -64,6 +64,13 @@ export const FeaturedProducts: React.FC = () => {
                     )}
                   </Link>
 
+                  {/* Top corner discount tag */}
+                  {prod.discount && (
+                    <span className="absolute top-5 left-5 z-10 bg-red-600 text-white text-[8px] font-heading font-extrabold tracking-wider uppercase px-2 py-1 rounded-sm shadow-md">
+                      -{prod.discount}
+                    </span>
+                  )}
+
                   {/* Wishlist Button */}
                   <button
                     onClick={(e) => {
@@ -92,17 +99,32 @@ export const FeaturedProducts: React.FC = () => {
 
                 {/* Product Info Block */}
                 <div className="mt-5 pl-1 space-y-1">
-                  <span className="text-[10px] font-heading font-bold tracking-wider text-brand-text-muted uppercase">
-                    {prod.subcategory} &bull; {prod.brand}
-                  </span>
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[10px] font-heading font-bold tracking-wider text-brand-text-muted uppercase">
+                      {prod.subcategory} &bull; {prod.brand}
+                    </span>
+                    {prod.rating && (
+                      <span className="text-[10px] font-heading font-bold text-brand-accent flex items-center space-x-0.5">
+                        <span>★</span>
+                        <span>{prod.rating}</span>
+                      </span>
+                    )}
+                  </div>
                   <h3 className="font-heading text-sm md:text-base font-extrabold text-brand-text leading-tight group-hover:text-brand-accent transition-colors duration-300 truncate">
                     <Link to={`/product/${prod.slug}`}>
                       {prod.name}
                     </Link>
                   </h3>
-                  <p className="font-heading text-sm md:text-base font-semibold text-brand-accent mt-0.5">
-                    ₹{prod.price}
-                  </p>
+                  <div className="flex items-center space-x-2 mt-0.5">
+                    <span className="font-heading text-sm md:text-base font-semibold text-brand-accent">
+                      ₹{prod.price}
+                    </span>
+                    {prod.originalPrice && (
+                      <span className="font-heading text-xs text-brand-text-muted line-through font-medium">
+                        ₹{prod.originalPrice}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )

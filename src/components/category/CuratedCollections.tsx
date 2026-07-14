@@ -4,6 +4,7 @@ import type { Variants } from 'framer-motion'
 import { SectionHeader } from '../common'
 import { ProductCard } from '../cards'
 import collectionsData from '../../data/collections.json'
+import { MOCK_PRODUCTS } from '../../data'
 
 interface Collection {
   id: number
@@ -16,6 +17,13 @@ interface Collection {
 }
 
 export const CuratedCollections: React.FC = () => {
+  const getProductForCollection = (colId: number) => {
+    if (colId === 1) return MOCK_PRODUCTS.find(p => p.id === 'prod-1')
+    if (colId === 2) return MOCK_PRODUCTS.find(p => p.id === 'prod-4')
+    if (colId === 3) return MOCK_PRODUCTS.find(p => p.id === 'prod-6')
+    if (colId === 4) return MOCK_PRODUCTS.find(p => p.id === 'prod-7')
+    return undefined
+  }
 
   // Animation variants
   const containerVariants: Variants = {
@@ -61,6 +69,7 @@ export const CuratedCollections: React.FC = () => {
               imageUrl={col.imageUrl}
               price={`Starts ${col.price}`}
               link={col.link}
+              product={getProductForCollection(col.id)}
             />
           ))}
         </motion.div>
