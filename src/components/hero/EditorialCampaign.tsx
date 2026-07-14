@@ -90,7 +90,7 @@ export const EditorialCampaign: React.FC = () => {
                 className="pt-2"
               >
                 <Link
-                  to="/shop"
+                  to="/category/new-arrivals"
                   className="inline-flex items-center space-x-2 text-[10px] font-heading font-extrabold tracking-[0.2em] uppercase text-brand-accent hover:text-white transition-colors duration-300 border-b border-brand-accent pb-1 hover:border-white focus:outline-none"
                 >
                   <span>Explore Collection</span>
@@ -105,7 +105,7 @@ export const EditorialCampaign: React.FC = () => {
             style={{ y: rightParallax }}
             className="w-full md:w-[45%] h-[350px] sm:h-[450px] md:h-full overflow-hidden rounded-[12px] shadow-[0_8px_30px_rgba(0,0,0,0.03)] bg-bg-secondary cursor-pointer group relative"
           >
-            <Link to="/shop" className="block w-full h-full relative overflow-hidden">
+            <Link to="/category/new-arrivals" className="block w-full h-full relative overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&h=1400&q=80"
                 alt="Luxury fashion walk lifestyle"

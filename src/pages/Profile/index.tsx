@@ -3,7 +3,7 @@ import {
   User, MapPin, Package, Settings, CheckCircle, AlertCircle, 
   Heart, Percent, Bell, LogOut, Camera, Eye, EyeOff, ClipboardList
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useShop } from '../../context/ShopContext'
 
 // ================= TYPES & INTERFACES =================
@@ -62,6 +62,8 @@ const AppleIcon = () => (
 
 export const ProfilePage: React.FC = () => {
   const { wishlist, toggleWishlist, addToCart } = useShop()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   // --- Auth View Navigation States ---
   // authView handles login flow screens: 'login' | 'signup' | 'forgot' | 'verify' | 'reset'
@@ -74,6 +76,41 @@ export const ProfilePage: React.FC = () => {
     const saved = localStorage.getItem('bg_current_user')
     return saved ? JSON.parse(saved) : null
   })
+
+  // Synchronize view state from URL query params
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search)
+    const view = searchParams.get('view')
+    if (view === 'signup' || view === 'login' || view === 'forgot' || view === 'verify' || view === 'reset') {
+      setAuthView(view as any)
+    }
+  }, [location.search])
+
+  // Handle post-login pending cart addition & intended-destination redirect
+  useEffect(() => {
+    if (currentUser) {
+      const pendingItemStr = localStorage.getItem('bg_pending_cart_item')
+      if (pendingItemStr) {
+        try {
+          const item = JSON.parse(pendingItemStr)
+          addToCart(item.product, item.size, item.color, item.quantity)
+          localStorage.removeItem('bg_pending_cart_item')
+          localStorage.removeItem('bg_redirect_after_login')
+          navigate('/cart')
+          return
+        } catch (e) {
+          console.error('Error processing pending cart item:', e)
+        }
+      }
+
+      // Restore the destination the user intended before being asked to log in
+      const redirectPath = localStorage.getItem('bg_redirect_after_login')
+      if (redirectPath) {
+        localStorage.removeItem('bg_redirect_after_login')
+        navigate(redirectPath)
+      }
+    }
+  }, [currentUser, addToCart, navigate])
 
   // --- Dashboard Tab State ---
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'addresses' | 'wishlist' | 'coupons' | 'notifications' | 'settings'>('profile')
@@ -1495,7 +1532,6 @@ export const ProfilePage: React.FC = () => {
                                 onClick={() => {
                                   // Add a simulated color/size item to cart
                                   addToCart(prod, 'M', { name: 'Standard', hex: '#111111' })
-                                  alert(`${prod.name} added to cart!`)
                                 }}
                                 className="flex-1 py-2 bg-[#111111] text-white text-[8px] font-heading font-extrabold tracking-widest uppercase rounded hover:bg-brand-accent transition-colors"
                               >

@@ -16,8 +16,6 @@ export const WishlistPage: React.FC = () => {
     
     // Remove from wishlist
     toggleWishlist(product)
-    
-    alert(`Moved ${product.name} to Cart.`)
   }
 
   return (

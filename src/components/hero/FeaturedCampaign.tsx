@@ -84,7 +84,7 @@ export const FeaturedCampaign: React.FC = () => {
           className="mt-8"
         >
           <Link
-            to="/collections/editorial"
+            to="/autumn-campaign"
             className="inline-flex items-center space-x-2 text-[10px] font-heading font-extrabold tracking-[0.2em] uppercase text-brand-accent hover:text-white transition-colors duration-300 border-b border-brand-accent pb-1 hover:border-white focus:outline-none"
           >
             <span>Explore Campaign</span>

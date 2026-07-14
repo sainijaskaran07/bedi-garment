@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { Product, CartItem, Color } from '../types'
 
 interface ShopContextType {
@@ -20,6 +22,7 @@ interface ShopContextType {
 const ShopContext = createContext<ShopContextType | undefined>(undefined)
 
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const navigate = useNavigate()
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('bg_cart')
     return saved ? JSON.parse(saved) : []
@@ -50,6 +53,13 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Cart operations
   const addToCart = (product: Product, size: string, color: Color, quantity = 1) => {
+    const isLoggedIn = !!localStorage.getItem('bg_current_user')
+    if (!isLoggedIn) {
+      localStorage.setItem('bg_pending_cart_item', JSON.stringify({ product, size, color, quantity }))
+      navigate('/profile')
+      return
+    }
+
     setCart((prev) => {
       const existingIdx = prev.findIndex(
         (item) =>
@@ -116,12 +126,14 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   // Recently Viewed operations
-  const addToRecentlyViewed = (product: Product) => {
+  // useCallback keeps the reference stable so effects that depend on it
+  // (e.g. the product page's "recently viewed" tracker) don't re-run every render.
+  const addToRecentlyViewed = useCallback((product: Product) => {
     setRecentlyViewed((prev) => {
       const filtered = prev.filter((item) => item.id !== product.id)
       return [product, ...filtered].slice(0, 8) // Limit to 8 items
     })
-  }
+  }, [])
 
   // Computed state values
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0)
